@@ -5,23 +5,30 @@ polinomio mediante el método de bisección.
 
 ## Estado actual
 
-**Versión 0.3 - Validaciones y tabla de iteraciones**
+**Versión 0.6 - Integración completa**
 
-Esta versión incorpora validaciones básicas para los datos, conserva el paso a
-paso completo del método y presenta los resultados en una tabla de consola.
-La interfaz gráfica funcional se agregará en la versión 0.4.
+Esta versión incorpora la ventana completa de resultados. Presenta la gráfica
+del polinomio, la tabla desplazable con todas las iteraciones, el resumen del
+procedimiento y una conclusión automática.
 
 ## Archivos
 
 - `main.py`: punto de entrada de la aplicación.
 - `biseccion.py`: contiene la interpretación del polinomio, las validaciones,
   el método de bisección y la tabla de consola.
-- `interfaz.py`: contiene la ventana inicial.
+- `interfaz.py`: contiene el formulario de entrada y la ventana completa de
+  resultados con gráfica, tabla, resumen y conclusión.
 - `README.md`: documentación del proyecto.
 
 ## Ejecución
 
-Se requiere Python 3 con Tkinter. Desde la carpeta del proyecto, ejecutar:
+Se requiere Python 3 con Tkinter y Matplotlib. Para instalar Matplotlib:
+
+```bash
+pip install matplotlib
+```
+
+Desde la carpeta del proyecto, ejecutar:
 
 ```bash
 python main.py
