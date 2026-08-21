@@ -1,15 +1,12 @@
-"""Lógica matemática del método de bisección."""
-
 import ast
 import math
 import re
 
 
 def interpretar_polinomio(texto):
-    """Convierte un texto como ``x^3 - 4x + 1`` en una función evaluable."""
     expresion = texto.lower().replace(" ", "").replace("^", "**")
 
-    # Agrega la multiplicación que normalmente se omite al escribir polinomios.
+    # Acepta formas comunes como 4x y x^2.
     expresion = re.sub(r"(?<=\d)(?=[x(])", "*", expresion)
     expresion = re.sub(r"(?<=[x)])(?=\()", "*", expresion)
     expresion = re.sub(r"(?<=\))(?=[x\d])", "*", expresion)
@@ -55,7 +52,6 @@ def interpretar_polinomio(texto):
 
 
 def validar_datos(polinomio, xi, xs, tolerancia):
-    """Valida las entradas y devuelve los valores listos para el cálculo."""
     campos = (polinomio, xi, xs, tolerancia)
     if any(valor is None or str(valor).strip() == "" for valor in campos):
         raise ValueError("Todos los campos son obligatorios.")
@@ -96,7 +92,6 @@ def validar_datos(polinomio, xi, xs, tolerancia):
 
 
 def metodo_biseccion(polinomio, xi, xs, tolerancia):
-    """Aproxima una raíz y devuelve el resultado junto con sus iteraciones."""
     funcion, xi, xs, tolerancia, f_xi, f_xs = validar_datos(
         polinomio, xi, xs, tolerancia
     )
@@ -119,6 +114,7 @@ def metodo_biseccion(polinomio, xi, xs, tolerancia):
     iteraciones = []
     xr_anterior = None
 
+    # Repite hasta alcanzar la tolerancia.
     while True:
         xr = (xi + xs) / 2
         f_xr = funcion(xr)
@@ -159,7 +155,6 @@ def metodo_biseccion(polinomio, xi, xs, tolerancia):
 
 
 def mostrar_resultado(resultado):
-    """Presenta en consola la tabla completa y el resumen del cálculo."""
     iteraciones = resultado["iteraciones"]
 
     if not iteraciones:
@@ -192,7 +187,6 @@ def mostrar_resultado(resultado):
 
 
 def ejecutar_prueba_consola():
-    """Solicita los datos y muestra el resultado o un mensaje de validación."""
     print("Prueba del método de bisección - versión 0.3")
     polinomio = input("Polinomio f(x): ")
     xi = input("Límite inferior Xi: ")

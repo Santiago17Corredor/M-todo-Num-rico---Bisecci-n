@@ -1,5 +1,3 @@
-"""Punto de entrada del laboratorio de métodos numéricos."""
-
 from interfaz import iniciar_aplicacion
 
 

@@ -1,5 +1,3 @@
-"""Interfaz gráfica del laboratorio."""
-
 import tkinter as tk
 from tkinter import messagebox, ttk
 
@@ -18,14 +16,12 @@ PLACEHOLDER = "Ejemplo: x^3 - 4x + 1"
 
 
 def centrar_ventana(ventana, ancho, alto):
-    """Ubica la ventana en el centro de la pantalla."""
     posicion_x = (ventana.winfo_screenwidth() - ancho) // 2
     posicion_y = (ventana.winfo_screenheight() - alto) // 2
     ventana.geometry(f"{ancho}x{alto}+{posicion_x}+{posicion_y}")
 
 
 def crear_campo(contenedor):
-    """Crea un campo de entrada con el estilo general del formulario."""
     return tk.Entry(
         contenedor,
         font=("Segoe UI", 11),
@@ -38,7 +34,6 @@ def crear_campo(contenedor):
 
 
 def crear_figura_polinomio(polinomio, xi, xs, raiz):
-    """Crea la figura con la curva, el intervalo y la raíz encontrada."""
     funcion = interpretar_polinomio(polinomio)
     margen = max((xs - xi) * 0.15, 0.1)
     inicio = xi - margen
@@ -95,7 +90,6 @@ def crear_figura_polinomio(polinomio, xi, xs, raiz):
 
 
 def crear_tabla_iteraciones(contenedor, iteraciones, ventana):
-    """Crea la tabla desplazable con el paso a paso de la bisección."""
     tk.Label(
         contenedor,
         text="Tabla de iteraciones",
@@ -210,7 +204,6 @@ def crear_tabla_iteraciones(contenedor, iteraciones, ventana):
 
 
 def crear_resumen(contenedor, resultado, xi, xs, ancho_ventana):
-    """Muestra los datos finales y genera una conclusión breve."""
     iteraciones = resultado["iteraciones"]
     total = len(iteraciones)
 
@@ -280,7 +273,6 @@ def crear_resumen(contenedor, resultado, xi, xs, ancho_ventana):
 def mostrar_ventana_resultados(
     ventana_entrada, polinomio, xi, xs, resultado, limpiar_formulario
 ):
-    """Oculta el formulario y muestra la integración completa de resultados."""
     ventana_entrada.withdraw()
 
     ventana_resultado = tk.Toplevel(ventana_entrada)
@@ -381,7 +373,6 @@ def mostrar_ventana_resultados(
 
 
 def crear_ventana_entrada():
-    """Construye la ventana para ingresar los datos del método."""
     ventana = tk.Tk()
     ventana.title("Método de bisección")
     ventana.configure(bg=FONDO)
@@ -476,7 +467,6 @@ def crear_ventana_entrada():
     )
 
     def limpiar_formulario():
-        """Limpia los datos para comenzar una nueva operación."""
         campo_polinomio.delete(0, tk.END)
         campo_polinomio.insert(0, PLACEHOLDER)
         campo_polinomio.configure(fg=GRIS)
@@ -511,7 +501,6 @@ def crear_ventana_entrada():
         )
 
     def cargar_ejemplo(polinomio, xi, xs, tolerancia):
-        """Carga los datos de un ejemplo y ejecuta el cálculo."""
         campo_polinomio.delete(0, tk.END)
         campo_polinomio.insert(0, polinomio)
         campo_polinomio.configure(fg=AZUL_OSCURO)
@@ -556,6 +545,7 @@ def crear_ventana_entrada():
         font=("Segoe UI", 9),
     ).pack(anchor="w", pady=(3, 12))
 
+    # Esta zona permite bajar hasta el tercer ejemplo.
     zona_ejemplos = tk.Frame(panel_ejemplos, bg="white")
     zona_ejemplos.pack(fill="both", expand=True)
 
@@ -662,6 +652,5 @@ def crear_ventana_entrada():
 
 
 def iniciar_aplicacion():
-    """Inicia la interfaz gráfica."""
     ventana = crear_ventana_entrada()
     ventana.mainloop()
