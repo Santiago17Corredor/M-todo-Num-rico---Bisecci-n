@@ -5,17 +5,17 @@ polinomio mediante el método de bisección.
 
 ## Estado actual
 
-**Versión 0.2 - Método de bisección en consola**
+**Versión 0.3 - Validaciones y tabla de iteraciones**
 
-Esta versión incorpora la interpretación de polinomios, el algoritmo de
-bisección, el cálculo del error aproximado y el almacenamiento de cada
-iteración. Por ahora, el método se prueba desde la consola.
+Esta versión incorpora validaciones básicas para los datos, conserva el paso a
+paso completo del método y presenta los resultados en una tabla de consola.
+La interfaz gráfica funcional se agregará en la versión 0.4.
 
 ## Archivos
 
 - `main.py`: punto de entrada de la aplicación.
-- `biseccion.py`: contiene la interpretación del polinomio y el método de
-  bisección.
+- `biseccion.py`: contiene la interpretación del polinomio, las validaciones,
+  el método de bisección y la tabla de consola.
 - `interfaz.py`: contiene la ventana inicial.
 - `README.md`: documentación del proyecto.
 

@@ -1,6 +1,7 @@
 """Lógica matemática del método de bisección."""
 
 import ast
+import math
 import re
 
 
@@ -34,7 +35,7 @@ def interpretar_polinomio(texto):
             raise ValueError("La expresión contiene una operación no permitida.")
         if isinstance(nodo, ast.Name) and nodo.id != "x":
             raise ValueError("La única variable permitida es x.")
-        if isinstance(nodo, ast.Constant) and not isinstance(nodo.value, (int, float)):
+        if isinstance(nodo, ast.Constant) and type(nodo.value) not in (int, float):
             raise ValueError("El polinomio solo puede contener números.")
         if isinstance(nodo, ast.BinOp) and isinstance(nodo.op, ast.Pow):
             exponente = nodo.right
@@ -53,20 +54,67 @@ def interpretar_polinomio(texto):
     return evaluar
 
 
-def metodo_biseccion(polinomio, xi, xs, tolerancia):
-    """Aproxima una raíz y devuelve el resultado junto con sus iteraciones.
+def validar_datos(polinomio, xi, xs, tolerancia):
+    """Valida las entradas y devuelve los valores listos para el cálculo."""
+    campos = (polinomio, xi, xs, tolerancia)
+    if any(valor is None or str(valor).strip() == "" for valor in campos):
+        raise ValueError("Todos los campos son obligatorios.")
 
-    En esta versión se supone que el intervalo y la tolerancia son adecuados.
-    Las validaciones completas se agregarán en la versión 0.3.
-    """
-    funcion = interpretar_polinomio(polinomio)
-    f_xi = funcion(xi)
-    f_xs = funcion(xs)
+    try:
+        xi = float(xi)
+        xs = float(xs)
+        tolerancia = float(tolerancia)
+    except (TypeError, ValueError):
+        raise ValueError("Xi, Xs y la tolerancia deben ser números.") from None
+
+    if not all(math.isfinite(valor) for valor in (xi, xs, tolerancia)):
+        raise ValueError("Xi, Xs y la tolerancia deben ser números finitos.")
+    if xi <= 0 or xs <= 0:
+        raise ValueError("El intervalo debe corresponder a valores positivos.")
+    if xi >= xs:
+        raise ValueError("El límite inferior Xi debe ser menor que Xs.")
+    if tolerancia <= 0:
+        raise ValueError("La tolerancia debe ser un número positivo.")
+
+    try:
+        funcion = interpretar_polinomio(str(polinomio).strip())
+        f_xi = funcion(xi)
+        f_xs = funcion(xs)
+    except (ArithmeticError, SyntaxError, TypeError, ValueError):
+        raise ValueError("El polinomio ingresado no es válido.") from None
+
+    if not all(math.isfinite(valor) for valor in (f_xi, f_xs)):
+        raise ValueError("El polinomio no produce valores numéricos válidos.")
+
+    if f_xi != 0 and f_xs != 0 and f_xi * f_xs >= 0:
+        raise ValueError(
+            "El intervalo ingresado no cumple las condiciones necesarias "
+            "para aplicar el método de bisección."
+        )
+
+    return funcion, xi, xs, tolerancia, f_xi, f_xs
+
+
+def metodo_biseccion(polinomio, xi, xs, tolerancia):
+    """Aproxima una raíz y devuelve el resultado junto con sus iteraciones."""
+    funcion, xi, xs, tolerancia, f_xi, f_xs = validar_datos(
+        polinomio, xi, xs, tolerancia
+    )
 
     if f_xi == 0:
-        return {"raiz": xi, "iteraciones": [], "error_final": 0.0}
+        return {
+            "raiz": xi,
+            "iteraciones": [],
+            "error_final": 0.0,
+            "extremo_raiz": "inferior",
+        }
     if f_xs == 0:
-        return {"raiz": xs, "iteraciones": [], "error_final": 0.0}
+        return {
+            "raiz": xs,
+            "iteraciones": [],
+            "error_final": 0.0,
+            "extremo_raiz": "superior",
+        }
 
     iteraciones = []
     xr_anterior = None
@@ -97,6 +145,7 @@ def metodo_biseccion(polinomio, xi, xs, tolerancia):
                 "raiz": xr,
                 "iteraciones": iteraciones,
                 "error_final": 0.0 if f_xr == 0 else error,
+                "extremo_raiz": None,
             }
 
         if f_xi * f_xr < 0:
@@ -109,32 +158,52 @@ def metodo_biseccion(polinomio, xi, xs, tolerancia):
         xr_anterior = xr
 
 
-def ejecutar_prueba_consola():
-    """Solicita un caso sencillo y muestra las iteraciones en la consola."""
-    print("Prueba del método de bisección - versión 0.2")
-    polinomio = input("Polinomio f(x): ")
-    xi = float(input("Límite inferior Xi: "))
-    xs = float(input("Límite superior Xs: "))
-    tolerancia = float(input("Tolerancia: "))
+def mostrar_resultado(resultado):
+    """Presenta en consola la tabla completa y el resumen del cálculo."""
+    iteraciones = resultado["iteraciones"]
 
-    resultado = metodo_biseccion(polinomio, xi, xs, tolerancia)
-
-    print("\nIteraciones realizadas:")
-    if not resultado["iteraciones"]:
-        print("No se necesitaron iteraciones: un extremo es una raíz.")
-
-    for paso in resultado["iteraciones"]:
-        error = "---" if paso["error"] is None else f'{paso["error"]:.6f}'
-        print(
-            f'{paso["iteracion"]:>3}: '
-            f'Xi={paso["xi"]:.6f}, '
-            f'Xs={paso["xs"]:.6f}, '
-            f'Xr={paso["xr"]:.6f}, '
-            f'f(Xr)={paso["f_xr"]:.6f}, '
-            f'Error={error}'
+    if not iteraciones:
+        extremo = resultado["extremo_raiz"]
+        print(f"\nEl límite {extremo} corresponde exactamente a una raíz.")
+    else:
+        encabezado = (
+            f'{"Iteración":^10} | {"Xi":^12} | {"Xs":^12} | {"Xr":^12} | '
+            f'{"f(Xi)":^13} | {"f(Xs)":^13} | {"f(Xr)":^13} | {"Error":^12}'
         )
+        print("\n" + encabezado)
+        print("-" * len(encabezado))
+
+        for paso in iteraciones:
+            error = "---" if paso["error"] is None else f'{paso["error"]:.6f}'
+            print(
+                f'{paso["iteracion"]:^10} | '
+                f'{paso["xi"]:^12.6f} | '
+                f'{paso["xs"]:^12.6f} | '
+                f'{paso["xr"]:^12.6f} | '
+                f'{paso["f_xi"]:^13.6f} | '
+                f'{paso["f_xs"]:^13.6f} | '
+                f'{paso["f_xr"]:^13.6f} | '
+                f'{error:^12}'
+            )
 
     print(f'\nRaíz aproximada: {resultado["raiz"]:.6f}')
+    print(f'Total de iteraciones: {len(iteraciones)}')
+    print(f'Error final: {resultado["error_final"]:.6f}')
+
+
+def ejecutar_prueba_consola():
+    """Solicita los datos y muestra el resultado o un mensaje de validación."""
+    print("Prueba del método de bisección - versión 0.3")
+    polinomio = input("Polinomio f(x): ")
+    xi = input("Límite inferior Xi: ")
+    xs = input("Límite superior Xs: ")
+    tolerancia = input("Tolerancia: ")
+
+    try:
+        resultado = metodo_biseccion(polinomio, xi, xs, tolerancia)
+        mostrar_resultado(resultado)
+    except ValueError as error:
+        print(f"\nError: {error}")
 
 
 if __name__ == "__main__":
