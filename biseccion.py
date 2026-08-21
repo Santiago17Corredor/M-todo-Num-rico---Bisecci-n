@@ -69,8 +69,8 @@ def validar_datos(polinomio, xi, xs, tolerancia):
 
     if not all(math.isfinite(valor) for valor in (xi, xs, tolerancia)):
         raise ValueError("Xi, Xs y la tolerancia deben ser números finitos.")
-    if xi <= 0 or xs <= 0:
-        raise ValueError("El intervalo debe corresponder a valores positivos.")
+    if xi < 0 or xs < 0:
+        raise ValueError("El intervalo debe corresponder a valores no negativos.")
     if xi >= xs:
         raise ValueError("El límite inferior Xi debe ser menor que Xs.")
     if tolerancia <= 0:

@@ -9,7 +9,8 @@ polinomio mediante el método de bisección.
 
 Esta versión incorpora la ventana completa de resultados. Presenta la gráfica
 del polinomio, la tabla desplazable con todas las iteraciones, el resumen del
-procedimiento y una conclusión automática.
+procedimiento y una conclusión automática. La ventana de entrada también ofrece
+tres ejemplos preparados que pueden ejecutarse con un solo clic.
 
 ## Archivos
 

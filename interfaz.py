@@ -277,7 +277,9 @@ def crear_resumen(contenedor, resultado, xi, xs, ancho_ventana):
     ).pack(fill="x", padx=20, pady=(10, 13))
 
 
-def mostrar_ventana_resultados(ventana_entrada, polinomio, xi, xs, resultado):
+def mostrar_ventana_resultados(
+    ventana_entrada, polinomio, xi, xs, resultado, limpiar_formulario
+):
     """Oculta el formulario y muestra la integración completa de resultados."""
     ventana_entrada.withdraw()
 
@@ -352,12 +354,13 @@ def mostrar_ventana_resultados(ventana_entrada, polinomio, xi, xs, resultado):
     def volver():
         ventana_resultado.destroy()
         ventana_entrada.deiconify()
+        limpiar_formulario()
 
     acciones = tk.Frame(ventana_resultado, bg=FONDO)
     acciones.pack(fill="x", padx=22, pady=(0, 16))
     tk.Button(
         acciones,
-        text="Nueva consulta",
+        text="Nueva operación",
         command=volver,
         bg=AZUL,
         fg="white",
@@ -379,7 +382,7 @@ def crear_ventana_entrada():
     ventana.title("Método de bisección")
     ventana.configure(bg=FONDO)
     ventana.resizable(False, False)
-    centrar_ventana(ventana, 640, 555)
+    centrar_ventana(ventana, 1080, 650)
 
     encabezado = tk.Frame(ventana, bg=AZUL_OSCURO, height=120)
     encabezado.pack(fill="x")
@@ -402,10 +405,21 @@ def crear_ventana_entrada():
 
     tk.Frame(ventana, bg=DORADO, height=4).pack(fill="x")
 
-    formulario = tk.Frame(ventana, bg="white", padx=35, pady=25)
-    formulario.pack(fill="both", padx=55, pady=28)
+    contenido_entrada = tk.Frame(ventana, bg=FONDO)
+    contenido_entrada.pack(fill="both", expand=True, padx=42, pady=24)
+    contenido_entrada.rowconfigure(0, weight=1)
+    contenido_entrada.columnconfigure(0, weight=6)
+    contenido_entrada.columnconfigure(1, weight=5)
+
+    formulario = tk.Frame(contenido_entrada, bg="white", padx=32, pady=25)
+    formulario.grid(row=0, column=0, sticky="nsew", padx=(0, 10))
     formulario.columnconfigure(0, weight=1)
     formulario.columnconfigure(1, weight=1)
+
+    panel_ejemplos = tk.Frame(
+        contenido_entrada, bg="white", padx=22, pady=20
+    )
+    panel_ejemplos.grid(row=0, column=1, sticky="nsew", padx=(10, 0))
 
     estilo_etiqueta = {
         "bg": "white",
@@ -457,6 +471,16 @@ def crear_ventana_entrada():
         row=5, column=0, columnspan=2, sticky="ew", ipady=7, pady=(5, 20)
     )
 
+    def limpiar_formulario():
+        """Limpia los datos para comenzar una nueva operación."""
+        campo_polinomio.delete(0, tk.END)
+        campo_polinomio.insert(0, PLACEHOLDER)
+        campo_polinomio.configure(fg=GRIS)
+        campo_xi.delete(0, tk.END)
+        campo_xs.delete(0, tk.END)
+        campo_tolerancia.delete(0, tk.END)
+        ventana.focus_set()
+
     def calcular():
         polinomio = campo_polinomio.get()
         if polinomio == PLACEHOLDER:
@@ -479,7 +503,24 @@ def crear_ventana_entrada():
             float(campo_xi.get()),
             float(campo_xs.get()),
             resultado,
+            limpiar_formulario,
         )
+
+    def cargar_ejemplo(polinomio, xi, xs, tolerancia):
+        """Carga los datos de un ejemplo y ejecuta el cálculo."""
+        campo_polinomio.delete(0, tk.END)
+        campo_polinomio.insert(0, polinomio)
+        campo_polinomio.configure(fg=AZUL_OSCURO)
+
+        for campo, valor in (
+            (campo_xi, xi),
+            (campo_xs, xs),
+            (campo_tolerancia, tolerancia),
+        ):
+            campo.delete(0, tk.END)
+            campo.insert(0, valor)
+
+        calcular()
 
     boton_calcular = tk.Button(
         formulario,
@@ -497,8 +538,80 @@ def crear_ventana_entrada():
     boton_calcular.grid(row=6, column=0, columnspan=2, sticky="ew")
 
     tk.Label(
+        panel_ejemplos,
+        text="Selección rápida de ejemplo",
+        bg="white",
+        fg=AZUL_OSCURO,
+        font=("Segoe UI", 14, "bold"),
+    ).pack(anchor="w")
+    tk.Label(
+        panel_ejemplos,
+        text="Elija una opción para calcularla automáticamente.",
+        bg="white",
+        fg=GRIS,
+        font=("Segoe UI", 9),
+    ).pack(anchor="w", pady=(3, 12))
+
+    ejemplos = (
+        ("-0.5x^2 + 2.5x + 4.5", "5", "10", "0.01"),
+        ("5x^3 - 3x^2 + 6x - 2", "0", "1", "0.01"),
+        ("0.7x^5 - 8x^4 + 44x^3 - 90x^2 + 82x - 25", "0.5", "1", "0.01"),
+    )
+
+    for numero, (polinomio, xi, xs, tolerancia) in enumerate(ejemplos, start=1):
+        tarjeta = tk.Frame(
+            panel_ejemplos,
+            bg="#f7f9fc",
+            padx=12,
+            pady=9,
+            highlightthickness=1,
+            highlightbackground="#d9dee5",
+        )
+        tarjeta.pack(fill="x", pady=(0, 9))
+
+        tk.Label(
+            tarjeta,
+            text=f"Ejemplo {numero}",
+            bg="#f7f9fc",
+            fg=DORADO,
+            font=("Segoe UI", 9, "bold"),
+        ).pack(anchor="w")
+        tk.Label(
+            tarjeta,
+            text=f"f(x) = {polinomio}",
+            bg="#f7f9fc",
+            fg=AZUL_OSCURO,
+            font=("Segoe UI", 9, "bold"),
+            justify="left",
+            anchor="w",
+            wraplength=350,
+        ).pack(fill="x", pady=(2, 3))
+        tk.Label(
+            tarjeta,
+            text=f"Xi = {xi}   |   Xs = {xs}   |   e = {tolerancia} (1%)",
+            bg="#f7f9fc",
+            fg=GRIS,
+            font=("Segoe UI", 8),
+        ).pack(anchor="w", pady=(0, 6))
+        tk.Button(
+            tarjeta,
+            text="Usar este ejemplo",
+            command=lambda p=polinomio, a=xi, b=xs, e=tolerancia: cargar_ejemplo(
+                p, a, b, e
+            ),
+            bg="#e3edf7",
+            fg=AZUL_OSCURO,
+            activebackground="#d3e2f1",
+            activeforeground=AZUL_OSCURO,
+            font=("Segoe UI", 8, "bold"),
+            relief="flat",
+            cursor="hand2",
+            pady=5,
+        ).pack(fill="x")
+
+    tk.Label(
         ventana,
-        text="Ingrese un intervalo positivo que contenga un cambio de signo.",
+        text="Ingrese un intervalo no negativo que contenga un cambio de signo.",
         bg=FONDO,
         fg=GRIS,
         font=("Segoe UI", 9),
