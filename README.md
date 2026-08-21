@@ -25,3 +25,5 @@ Se requiere Python 3 con Tkinter. Desde la carpeta del proyecto, ejecutar:
 ```bash
 python main.py
 ```
+# Metodo Numerico Biseccion
+Programa en Python con interfaz que aplica el metodo numérico bisección a una ecuación polinómica de grado n
