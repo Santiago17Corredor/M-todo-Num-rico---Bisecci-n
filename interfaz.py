@@ -274,7 +274,7 @@ def crear_resumen(contenedor, resultado, xi, xs, ancho_ventana):
         justify="left",
         anchor="w",
         wraplength=ancho_ventana - 90,
-    ).pack(fill="x", padx=20, pady=(10, 13))
+    ).pack(fill="x", padx=20, pady=(12, 18))
 
 
 def mostrar_ventana_resultados(
@@ -290,27 +290,53 @@ def mostrar_ventana_resultados(
     alto = min(850, ventana_resultado.winfo_screenheight() - 80)
     ventana_resultado.minsize(min(1050, ancho), min(650, alto))
     centrar_ventana(ventana_resultado, ancho, alto)
+    ventana_resultado.columnconfigure(0, weight=1)
+    ventana_resultado.rowconfigure(1, weight=1)
 
-    encabezado = tk.Frame(ventana_resultado, bg=AZUL_OSCURO, height=74)
-    encabezado.pack(fill="x")
-    encabezado.pack_propagate(False)
+    def volver():
+        ventana_resultado.destroy()
+        ventana_entrada.deiconify()
+        limpiar_formulario()
+
+    encabezado = tk.Frame(ventana_resultado, bg=AZUL_OSCURO, height=82)
+    encabezado.grid(row=0, column=0, sticky="ew")
+    encabezado.grid_propagate(False)
+    encabezado.columnconfigure(0, weight=1)
+
+    textos_encabezado = tk.Frame(encabezado, bg=AZUL_OSCURO)
+    textos_encabezado.grid(row=0, column=0, sticky="w", padx=24, pady=12)
     tk.Label(
-        encabezado,
+        textos_encabezado,
         text="Resultados del método de bisección",
         bg=AZUL_OSCURO,
         fg="white",
         font=("Segoe UI", 18, "bold"),
-    ).pack(pady=(14, 1))
+    ).pack(anchor="w")
     tk.Label(
-        encabezado,
+        textos_encabezado,
         text=f"f(x) = {polinomio}",
         bg=AZUL_OSCURO,
         fg="#dce6f1",
         font=("Segoe UI", 9),
-    ).pack()
+    ).pack(anchor="w", pady=(2, 0))
+
+    tk.Button(
+        encabezado,
+        text="Nueva operación",
+        command=volver,
+        bg=DORADO,
+        fg="black",
+        activebackground="#d5b879",
+        activeforeground="black",
+        font=("Segoe UI", 10, "bold"),
+        relief="flat",
+        cursor="hand2",
+        padx=18,
+        pady=8,
+    ).grid(row=0, column=1, padx=24)
 
     contenido = tk.Frame(ventana_resultado, bg=FONDO)
-    contenido.pack(fill="both", expand=True, padx=22, pady=(18, 10))
+    contenido.grid(row=1, column=0, sticky="nsew", padx=22, pady=(18, 12))
     contenido.rowconfigure(0, weight=1)
     contenido.columnconfigure(0, weight=5)
     contenido.columnconfigure(1, weight=6)
@@ -348,30 +374,8 @@ def mostrar_ventana_resultados(
     contenedor_resumen = tk.Frame(
         ventana_resultado, bg="white", bd=1, relief="solid"
     )
-    contenedor_resumen.pack(fill="x", padx=22, pady=(0, 10))
+    contenedor_resumen.grid(row=2, column=0, sticky="ew", padx=22, pady=(0, 20))
     crear_resumen(contenedor_resumen, resultado, xi, xs, ancho)
-
-    def volver():
-        ventana_resultado.destroy()
-        ventana_entrada.deiconify()
-        limpiar_formulario()
-
-    acciones = tk.Frame(ventana_resultado, bg=FONDO)
-    acciones.pack(fill="x", padx=22, pady=(0, 16))
-    tk.Button(
-        acciones,
-        text="Nueva operación",
-        command=volver,
-        bg=AZUL,
-        fg="white",
-        activebackground=AZUL_OSCURO,
-        activeforeground="white",
-        font=("Segoe UI", 10, "bold"),
-        relief="flat",
-        cursor="hand2",
-        padx=18,
-        pady=7,
-    ).pack(side="right")
 
     ventana_resultado.protocol("WM_DELETE_WINDOW", ventana_entrada.destroy)
 
@@ -552,6 +556,41 @@ def crear_ventana_entrada():
         font=("Segoe UI", 9),
     ).pack(anchor="w", pady=(3, 12))
 
+    zona_ejemplos = tk.Frame(panel_ejemplos, bg="white")
+    zona_ejemplos.pack(fill="both", expand=True)
+
+    lienzo_ejemplos = tk.Canvas(
+        zona_ejemplos,
+        bg="white",
+        highlightthickness=0,
+    )
+    barra_ejemplos = ttk.Scrollbar(
+        zona_ejemplos,
+        orient="vertical",
+        command=lienzo_ejemplos.yview,
+    )
+    lienzo_ejemplos.configure(yscrollcommand=barra_ejemplos.set)
+    lienzo_ejemplos.pack(side="left", fill="both", expand=True)
+    barra_ejemplos.pack(side="right", fill="y", padx=(7, 0))
+
+    lista_ejemplos = tk.Frame(lienzo_ejemplos, bg="white")
+    ventana_ejemplos = lienzo_ejemplos.create_window(
+        (0, 0), window=lista_ejemplos, anchor="nw"
+    )
+
+    lista_ejemplos.bind(
+        "<Configure>",
+        lambda event: lienzo_ejemplos.configure(
+            scrollregion=lienzo_ejemplos.bbox("all")
+        ),
+    )
+    lienzo_ejemplos.bind(
+        "<Configure>",
+        lambda event: lienzo_ejemplos.itemconfigure(
+            ventana_ejemplos, width=event.width
+        ),
+    )
+
     ejemplos = (
         ("-0.5x^2 + 2.5x + 4.5", "5", "10", "0.01"),
         ("5x^3 - 3x^2 + 6x - 2", "0", "1", "0.01"),
@@ -560,7 +599,7 @@ def crear_ventana_entrada():
 
     for numero, (polinomio, xi, xs, tolerancia) in enumerate(ejemplos, start=1):
         tarjeta = tk.Frame(
-            panel_ejemplos,
+            lista_ejemplos,
             bg="#f7f9fc",
             padx=12,
             pady=9,
