@@ -156,7 +156,7 @@ def crear_tabla_iteraciones(contenedor, iteraciones, ventana):
     estilo.configure(
         "Iteraciones.Treeview.Heading",
         background=AZUL,
-        foreground="white",
+        foreground="black",
         font=("Segoe UI", 9, "bold"),
     )
     estilo.map(
@@ -269,7 +269,7 @@ def crear_resumen(contenedor, resultado, xi, xs, ancho_ventana):
         contenedor,
         text="Conclusión: " + conclusion,
         bg="white",
-        fg="#3f4a56",
+        fg="black",
         font=("Segoe UI", 9),
         justify="left",
         anchor="w",
